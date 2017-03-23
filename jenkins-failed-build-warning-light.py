@@ -1,3 +1,4 @@
+import datetime
 import requests
 import time
 import sys
@@ -8,6 +9,12 @@ FAILED_JOB_COLORS = ['yellow', 'red']
 PIN = "XIO-P4"
 ON = GPIO.LOW
 OFF = GPIO.HIGH
+WORKDAY_START_TIME = datetime.time(8, 45)
+WORKDAY_END_TIME = datetime.time(18, 0)
+
+def during_working_hours():
+    now = datetime.datetime.today()
+    return now.weekday() in range(0,4) and WORKDAY_START_TIME < now.time() and now.time() < WORKDAY_END_TIME
 
 def get_number_of_failed_jenkins_jobs(view_url):
     req = requests.get(view_url + '/api/json?tree=jobs[color]')
@@ -24,12 +31,20 @@ if __name__ == '__main__':
     view_url = sys.argv[1]
     GPIO.cleanup()
     GPIO.setup(PIN, GPIO.OUT)
+    current_state = OFF
     try:
         while True:
-            if get_number_of_failed_jenkins_jobs(view_url) == 0:
-                GPIO.output(PIN, OFF)
+            if during_working_hours():
+                if get_number_of_failed_jenkins_jobs(view_url) == 0:
+                    current_state = OFF
+                else:
+                    current_state = ON
+                GPIO.output(PIN, current_state)
             else:
-                GPIO.output(PIN, ON)
+                if current_state == ON:
+                    current_state = OFF
+                    GPIO.output(PIN, current_state)
+                
             time.sleep(POLL_INTERVAL_SECONDS)
     except (SystemExit, KeyboardInterrupt):
         GPIO.output(PIN, OFF)
