@@ -6,6 +6,8 @@ import CHIP_IO.GPIO as GPIO
 POLL_INTERVAL_SECONDS = 3
 FAILED_JOB_COLORS = ['yellow', 'red']
 PIN = "XIO-P4"
+ON = GPIO.LOW
+OFF = GPIO.HIGH
 
 def get_number_of_failed_jenkins_jobs(view_url):
     req = requests.get(view_url + '/api/json?tree=jobs[color]')
@@ -25,10 +27,10 @@ if __name__ == '__main__':
     try:
         while True:
             if get_number_of_failed_jenkins_jobs(view_url) == 0:
-                GPIO.output(PIN, GPIO.HIGH)
+                GPIO.output(PIN, OFF)
             else:
-                GPIO.output(PIN, GPIO.LOW)
+                GPIO.output(PIN, ON)
             time.sleep(POLL_INTERVAL_SECONDS)
     except (SystemExit, KeyboardInterrupt):
-        GPIO.output(PIN, GPIO.HIGH)
+        GPIO.output(PIN, OFF)
         GPIO.cleanup()
