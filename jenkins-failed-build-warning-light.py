@@ -32,6 +32,7 @@ if __name__ == '__main__':
     GPIO.cleanup()
     GPIO.setup(PIN, GPIO.OUT)
     current_state = OFF
+    GPIO.output(PIN, current_state)
     try:
         while True:
             if during_working_hours():
