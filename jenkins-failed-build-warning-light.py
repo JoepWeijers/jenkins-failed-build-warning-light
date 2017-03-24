@@ -14,7 +14,7 @@ WORKDAY_END_TIME = datetime.time(18, 0)
 
 def during_working_hours():
     now = datetime.datetime.today()
-    return now.weekday() in range(0,4) and WORKDAY_START_TIME < now.time() and now.time() < WORKDAY_END_TIME
+    return now.weekday() in range(1,5) and WORKDAY_START_TIME < now.time() and now.time() < WORKDAY_END_TIME
 
 def get_number_of_failed_jenkins_jobs(view_url):
     req = requests.get(view_url + '/api/json?tree=jobs[color]')
