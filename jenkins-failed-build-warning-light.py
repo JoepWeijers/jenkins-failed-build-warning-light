@@ -29,6 +29,7 @@ if __name__ == '__main__':
         raise Exception("No Jenkins view URL passed. Usage: python jenkins-failed-build-warning-light.py http://jenkins.example.com/view/Main")
     
     view_url = sys.argv[1]
+    print "Start monitoring Jenkins view {}".format(view_url)
     GPIO.cleanup()
     GPIO.setup(PIN, GPIO.OUT)
     current_state = OFF
@@ -37,11 +38,14 @@ if __name__ == '__main__':
         while True:
             if during_working_hours():
                 if get_number_of_failed_jenkins_jobs(view_url) == 0:
+                    print "Everything is OK"
                     current_state = OFF
                 else:
+                    print "There are {} failing jobs".format()
                     current_state = ON
                 GPIO.output(PIN, current_state)
             else:
+                print "Nobody is in the office"
                 if current_state == ON:
                     current_state = OFF
                     GPIO.output(PIN, current_state)
