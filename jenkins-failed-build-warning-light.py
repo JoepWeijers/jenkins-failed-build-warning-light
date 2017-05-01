@@ -37,13 +37,17 @@ if __name__ == '__main__':
     try:
         while True:
             if during_working_hours():
-                if get_number_of_failed_jenkins_jobs(view_url) == 0:
-                    print "Everything is OK"
-                    current_state = OFF
-                else:
-                    print "There are {} failing jobs".format()
-                    current_state = ON
-                GPIO.output(PIN, current_state)
+                try:
+                    number_of_failed_jobs = get_number_of_failed_jenkins_jobs(view_url)
+                    if number_of_failed_jobs == 0:
+                        print "Everything is OK"
+                        current_state = OFF
+                    else:
+                        print "There are {} failing jobs".format(number_of_failed_jobs)
+                        current_state = ON
+                    GPIO.output(PIN, current_state)
+                except Exception as e:
+                    print "Failed to get update status of Jenkins jobs: {}".format(str(e))
             else:
                 print "Nobody is in the office"
                 if current_state == ON:
